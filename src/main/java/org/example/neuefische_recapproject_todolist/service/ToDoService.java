@@ -8,6 +8,7 @@ import org.example.neuefische_recapproject_todolist.repo.ToDoRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +41,12 @@ public class ToDoService {
         return repo.save(newToDo);
     }
 
-    public ToDo updateToDo (ToDo toDo, String id){
+    public ToDo updateToDo (ToDoDTO dto, String id){
         if (repo.existsById(id)) {
-            repo.save(toDo);
-            return repo.findById(id).orElseThrow();
+            ToDo temp = repo.findById(id).orElseThrow();
+            temp = temp.withStatus(dto.status());
+            temp = temp.withDescription(dto.description());
+            return repo.save(temp);
         } else {
             throw new RuntimeException("ToDo not found");
         }

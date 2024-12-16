@@ -31,8 +31,8 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ToDo updateToDo(@RequestBody ToDo toDo, @PathVariable String id){
-        return service.updateToDo(toDo, id);
+    public ToDo updateToDo(@RequestBody ToDoDTO dto, @PathVariable String id){
+        return service.updateToDo(dto, id);
     }
 
     @DeleteMapping("/{id}")
