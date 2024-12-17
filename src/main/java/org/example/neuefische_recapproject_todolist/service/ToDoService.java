@@ -17,15 +17,8 @@ public class ToDoService {
     private final ToDoRepo repo;
     private final IdService idService;
 
-    public List<ToDoDTO> getAllToDos() {
-        return repo.findAll().stream()
-                .map(toDo -> {
-                    ToDoDTO dto = new ToDoDTO(
-                            toDo.description(),
-                            toDo.status());
-                    return dto;
-                })
-                .toList();
+    public List<ToDo> getAllToDos() {
+        return repo.findAll();
     }
 
     public ToDo getToDoById(String id){
@@ -36,17 +29,13 @@ public class ToDoService {
         ToDo newToDo = new ToDo(
                 idService.generateId(),
                 dto.description(),
-                ToDoStatus.OPEN
-                );
+                dto.status());
         return repo.save(newToDo);
     }
 
-    public ToDo updateToDo (ToDoDTO dto, String id){
-        if (repo.existsById(id)) {
-            ToDo temp = repo.findById(id).orElseThrow();
-            temp = temp.withStatus(dto.status());
-            temp = temp.withDescription(dto.description());
-            return repo.save(temp);
+    public ToDo updateToDo (ToDo toDo){
+        if (repo.existsById(toDo.id())) {
+            return repo.save(toDo);
         } else {
             throw new RuntimeException("ToDo not found");
         }

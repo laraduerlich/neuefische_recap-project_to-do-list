@@ -86,8 +86,9 @@ class ToDoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                  {
+                                 "id": 1,
                                  "description": "Description",
-                                 "status": "OPEN"
+                                 "status": "IN_PROGRESS"
                                  }
                                  """))
                 .andExpect(status().isOk())
@@ -95,7 +96,7 @@ class ToDoControllerTest {
                                           {
                                           "id": "1",
                                           "description": "Description",
-                                          "status": "OPEN"
+                                          "status": "IN_PROGRESS"
                                           }
                                           """));
     }

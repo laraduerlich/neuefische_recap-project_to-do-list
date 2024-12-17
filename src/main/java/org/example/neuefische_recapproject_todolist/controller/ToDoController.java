@@ -16,7 +16,7 @@ public class ToDoController {
     private final ToDoService service;
 
     @GetMapping
-    public List<ToDoDTO> getAllToDos (){
+    public List<ToDo> getAllToDos (){
         return service.getAllToDos();
     }
 
@@ -31,8 +31,8 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ToDo updateToDo(@RequestBody ToDoDTO dto, @PathVariable String id){
-        return service.updateToDo(dto, id);
+    public ToDo updateToDo(@RequestBody ToDo toDo){
+        return service.updateToDo(toDo);
     }
 
     @DeleteMapping("/{id}")

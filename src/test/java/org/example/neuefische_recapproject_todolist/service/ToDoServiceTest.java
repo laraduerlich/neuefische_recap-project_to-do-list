@@ -22,9 +22,9 @@ class ToDoServiceTest {
     void getAllToDos_shouldReturnEmptyList_whenCalledInitially(){
         // GIVEN
         ToDoService service = new ToDoService(repo,idService);
-        List<ToDoDTO> expected = Collections.emptyList();
+        List<ToDo> expected = Collections.emptyList();
         // WHEN
-        List<ToDoDTO> actual = service.getAllToDos();
+        List<ToDo> actual = service.getAllToDos();
         // THEN
         assertEquals(expected,actual);
     }
@@ -68,10 +68,9 @@ class ToDoServiceTest {
                 dto.description(),
                 dto.status());
         when(repo.existsById(toDo.id())).thenReturn(true);
-        when(repo.findById(toDo.id())).thenReturn(Optional.of(toDo));
         when(repo.save(any(ToDo.class))).thenReturn(expected);
         // WHEN
-        ToDo actual = service.updateToDo(dto, toDo.id());
+        ToDo actual = service.updateToDo(toDo);
         // THEN
         assertEquals(expected,actual);
         verify(repo).save(expected);
