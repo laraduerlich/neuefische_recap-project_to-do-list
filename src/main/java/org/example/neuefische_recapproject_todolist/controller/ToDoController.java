@@ -1,6 +1,8 @@
 package org.example.neuefische_recapproject_todolist.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.neuefische_recapproject_todolist.chatgpt.service.ChatGptApiService;
+import org.example.neuefische_recapproject_todolist.exception.NotFoundException;
 import org.example.neuefische_recapproject_todolist.model.ToDo;
 import org.example.neuefische_recapproject_todolist.model.ToDoDTO;
 import org.example.neuefische_recapproject_todolist.service.ToDoService;
@@ -14,6 +16,13 @@ import java.util.List;
 public class ToDoController {
 
     private final ToDoService service;
+    private final ChatGptApiService chatGptApiService;
+
+
+//    @PostMapping("/test")
+//    public String test(@RequestBody ToDoDTO dto) {
+//        return chatGptApiService.getChatGptResponse(dto);
+//    }
 
     @GetMapping
     public List<ToDo> getAllToDos (){
@@ -31,12 +40,12 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ToDo updateToDo(@RequestBody ToDo toDo){
+    public ToDo updateToDo(@RequestBody ToDo toDo) throws NotFoundException {
         return service.updateToDo(toDo);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteToDo(@PathVariable String id){
+    public void deleteToDo(@PathVariable String id) throws NotFoundException {
         service.deleteToDo(id);
     }
 

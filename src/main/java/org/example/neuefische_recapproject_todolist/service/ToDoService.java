@@ -1,21 +1,27 @@
 package org.example.neuefische_recapproject_todolist.service;
 
-import lombok.RequiredArgsConstructor;
+import org.example.neuefische_recapproject_todolist.chatgpt.service.ChatGptApiService;
+import org.example.neuefische_recapproject_todolist.exception.NotFoundException;
 import org.example.neuefische_recapproject_todolist.model.ToDo;
 import org.example.neuefische_recapproject_todolist.model.ToDoDTO;
-import org.example.neuefische_recapproject_todolist.model.ToDoStatus;
 import org.example.neuefische_recapproject_todolist.repo.ToDoRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ToDoService {
 
     private final ToDoRepo repo;
     private final IdService idService;
+    private final ChatGptApiService chatGptApiService;
+
+    public ToDoService(ToDoRepo repo, IdService idService, ChatGptApiService chatGptApiService) {
+        this.repo = repo;
+        this.idService = idService;
+        this.chatGptApiService = chatGptApiService;
+    }
+
 
     public List<ToDo> getAllToDos() {
         return repo.findAll();
@@ -26,26 +32,29 @@ public class ToDoService {
     }
 
     public ToDo createToDo(ToDoDTO dto) {
+        String spellingCheck = chatGptApiService.getChatGptResponse(dto.description());
         ToDo newToDo = new ToDo(
                 idService.generateId(),
-                dto.description(),
+                spellingCheck,
                 dto.status());
         return repo.save(newToDo);
     }
 
-    public ToDo updateToDo (ToDo toDo){
+    public ToDo updateToDo (ToDo toDo) throws NotFoundException {
         if (repo.existsById(toDo.id())) {
+            String spellingCheck = chatGptApiService.getChatGptResponse(toDo.description());
+            toDo = toDo.withDescription(spellingCheck);
             return repo.save(toDo);
         } else {
-            throw new RuntimeException("ToDo not found");
+            throw new NotFoundException("ToDo not found");
         }
     }
 
-    public void deleteToDo (String id){
+    public void deleteToDo (String id) throws NotFoundException {
         if (repo.existsById(id)) {
             repo.deleteById(id);
         } else {
-            throw new RuntimeException("ToDo not found");
+            throw new NotFoundException("ToDo not found");
         }
     }
 
