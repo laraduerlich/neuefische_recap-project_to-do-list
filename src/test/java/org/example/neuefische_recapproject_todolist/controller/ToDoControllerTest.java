@@ -1,9 +1,11 @@
 package org.example.neuefische_recapproject_todolist.controller;
 
+import org.example.neuefische_recapproject_todolist.exception.NotFoundException;
 import org.example.neuefische_recapproject_todolist.model.ToDo;
 import org.example.neuefische_recapproject_todolist.repo.ToDoRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockRestServiceServer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -25,6 +27,7 @@ class ToDoControllerTest {
 
     @Autowired
     private ToDoRepo repo;
+
 
     @Test
     void getAllToDos_shouldReturnEmptyList_whenCalledInitially() throws Exception {
@@ -85,12 +88,12 @@ class ToDoControllerTest {
         mockMvc.perform(put("/api/todo/" + toDo.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                 {
-                                 "id": 1,
-                                 "description": "Description",
-                                 "status": "IN_PROGRESS"
-                                 }
-                                 """))
+                                {
+                                "id": 1,
+                                "description": "Description",
+                                "status": "IN_PROGRESS"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                                           {
@@ -99,6 +102,26 @@ class ToDoControllerTest {
                                           "status": "IN_PROGRESS"
                                           }
                                           """));
+    }
+
+    @Test
+    void updateToDo_shouldThrowException_whenNotFound() throws Exception {
+        // WHEN & THEN
+        mockMvc.perform(put("/api/todo/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                "id": 1,
+                                "description": "Description",
+                                "status": "IN_PROGRESS"
+                                }
+                                """))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json("""
+                                {
+                                    "message": "ToDo not found"
+                                }
+                                """));
     }
 
     @Test
@@ -113,5 +136,17 @@ class ToDoControllerTest {
         mockMvc.perform(delete("/api/todo/" + toDo.id()))
                 .andExpect(status().isOk());
         assertFalse(repo.existsById(toDo.id()));
+    }
+
+    @Test
+    void deleteToDo_shouldThrowException_whenToDoNotFound () throws Exception{
+        // WHEN & THEN
+        mockMvc.perform(delete("/api/todo/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json("""
+                                {
+                                    "message": "ToDo not found"
+                                }
+                                """));
     }
 }
