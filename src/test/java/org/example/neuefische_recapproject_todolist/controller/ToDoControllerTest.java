@@ -186,6 +186,55 @@ class ToDoControllerTest {
     }
 
     @Test
+    void updateToDo_checkApiCall () throws Exception{
+        // GIVEN
+        mockServer.expect(requestTo("https://api.openai.com/v1/chat/completions"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Authorization", "Bearer your-token"))
+                .andRespond(withSuccess("""
+                        {
+                             "id": "chatcmpl-AlYfXsC7MleTcISu5Tih3xeaJfKdL",
+                             "object": "chat.completion",
+                             "created": 1735898047,
+                             "model": "gpt-3.5-turbo-0125",
+                             "choices": [
+                                 {
+                                     "index": 0,
+                                     "message": {
+                                         "role": "assistant",
+                                         "content": "test",
+                                         "refusal": null
+                                     },
+                                     "logprobs": null,
+                                     "finish_reason": "stop"
+                                 }
+                             ]
+                        }""", MediaType.APPLICATION_JSON));
+        ToDo toDo = ToDo.builder()
+                .id("47e8781a-c97e-44b7-816f-c3ff3fdbc555")
+                .build();
+        repo.save(toDo);
+        // WHEN & THEN
+        mockMvc.perform(put("/api/todo/47e8781a-c97e-44b7-816f-c3ff3fdbc555")
+                        .content("""
+                                {
+                                  "id": "47e8781a-c97e-44b7-816f-c3ff3fdbc555",
+                                  "description": "teeest",
+                                  "status": "IN_PROGRESS"
+                                }
+                                """)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                                {
+                                  "id": "47e8781a-c97e-44b7-816f-c3ff3fdbc555",
+                                  "description": "test",
+                                  "status": "IN_PROGRESS"
+                                }
+                                """));
+    }
+
+    @Test
     void deleteToDo_shouldDeleteToDo_whenCalledWithValidId () throws Exception {
         // GIVEN
         ToDo toDo = ToDo.builder()
