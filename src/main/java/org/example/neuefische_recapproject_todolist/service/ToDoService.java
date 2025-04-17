@@ -1,6 +1,7 @@
 package org.example.neuefische_recapproject_todolist.service;
 
 import org.example.neuefische_recapproject_todolist.chatgpt.service.ChatGptApiService;
+import org.example.neuefische_recapproject_todolist.exception.ChatGPTNull;
 import org.example.neuefische_recapproject_todolist.exception.NotFoundException;
 import org.example.neuefische_recapproject_todolist.model.ToDo;
 import org.example.neuefische_recapproject_todolist.model.ToDoDTO;
@@ -22,16 +23,16 @@ public class ToDoService {
         this.chatGptApiService = chatGptApiService;
     }
 
-
     public List<ToDo> getAllToDos() {
         return repo.findAll();
     }
 
-    public ToDo getToDoById(String id){
-        return repo.findById(id).orElseThrow();
+    public ToDo getToDoById(String id) throws NotFoundException {
+        return repo.findById(id)
+                .orElseThrow(() -> new NotFoundException("ToDo not found"));
     }
 
-    public ToDo createToDo(ToDoDTO dto) {
+    public ToDo createToDo(ToDoDTO dto) throws ChatGPTNull {
         String spellingCheck = chatGptApiService.getChatGptResponse(dto.description());
         ToDo newToDo = new ToDo(
                 idService.generateId(),
@@ -57,7 +58,4 @@ public class ToDoService {
             throw new NotFoundException("ToDo not found");
         }
     }
-
-
-
 }

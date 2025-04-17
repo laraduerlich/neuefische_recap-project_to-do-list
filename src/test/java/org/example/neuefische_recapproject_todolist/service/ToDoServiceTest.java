@@ -1,6 +1,7 @@
 package org.example.neuefische_recapproject_todolist.service;
 
 import org.example.neuefische_recapproject_todolist.chatgpt.service.ChatGptApiService;
+import org.example.neuefische_recapproject_todolist.exception.ChatGPTNull;
 import org.example.neuefische_recapproject_todolist.exception.NotFoundException;
 import org.example.neuefische_recapproject_todolist.model.ToDo;
 import org.example.neuefische_recapproject_todolist.model.ToDoDTO;
@@ -18,9 +19,9 @@ import static org.mockito.Mockito.*;
 
 class ToDoServiceTest {
 
-    private ToDoRepo repo = mock(ToDoRepo.class);
-    private IdService idService = mock(IdService.class);
-    private ChatGptApiService chatGptApiService = mock(ChatGptApiService.class);
+    private final ToDoRepo repo = mock(ToDoRepo.class);
+    private final IdService idService = mock(IdService.class);
+    private final ChatGptApiService chatGptApiService = mock(ChatGptApiService.class);
 
     @Test
     void getAllToDos_shouldReturnEmptyList_whenCalledInitially(){
@@ -34,7 +35,7 @@ class ToDoServiceTest {
     }
 
     @Test
-    void getToDoById_shouldReturnToDo_whenCalledWithValidId() {
+    void getToDoById_shouldReturnToDo_whenCalledWithValidId() throws NotFoundException {
         // GIVEN
         ToDoService service = new ToDoService(repo,idService, chatGptApiService);
         ToDo toDo = new ToDo("1", "Test", ToDoStatus.OPEN);
@@ -47,13 +48,14 @@ class ToDoServiceTest {
     }
 
     @Test
-    void createToDo_shouldCreateToDo_whenCalledWithDTO(){
+    void createToDo_shouldCreateToDo_whenCalledWithDTO() throws ChatGPTNull {
         // GIVEN
         ToDoService service = new ToDoService(repo,idService, chatGptApiService);
         ToDoDTO dto = new ToDoDTO("Test", ToDoStatus.OPEN);
         ToDo expected = new ToDo("1", "Test", ToDoStatus.OPEN);
         when(idService.generateId()).thenReturn("1");
         when(repo.save(expected)).thenReturn(expected);
+        when(chatGptApiService.getChatGptResponse(dto.description())).thenReturn(dto.description());
         // WHEN
         ToDo actual = service.createToDo(dto);
         // THEN
@@ -73,6 +75,7 @@ class ToDoServiceTest {
                 dto.status());
         when(repo.existsById(toDo.id())).thenReturn(true);
         when(repo.save(any(ToDo.class))).thenReturn(expected);
+        when(chatGptApiService.getChatGptResponse(dto.description())).thenReturn(dto.description());
         // WHEN
         ToDo actual = service.updateToDo(toDo);
         // THEN
@@ -95,7 +98,4 @@ class ToDoServiceTest {
         // THEN
         verify(repo).deleteById(expected.id());
     }
-
-
-  
 }
